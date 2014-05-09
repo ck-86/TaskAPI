@@ -1,0 +1,23 @@
+{
+  "name": "NodeDB-RESTful",
+  "version": "0.0.0",
+  "description": "Creating RESTful Server using NodeJS, Express, MongoDB and Mongoose",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^4.1.1",
+    "mongoose" : "*"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "nodejs",
+    "mongo",
+    "express",
+    "mongoose"
+  ],
+  "author": "CK <ck86@gmx.com>",
+  "license": "MIT"
+}
