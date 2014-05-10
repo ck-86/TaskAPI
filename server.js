@@ -8,6 +8,8 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var http = require('http');
 var port = 1337;
+//--- Require Mongoose ---//
+var mongoose = require('mongoose');
 
 var app = express();
 
@@ -17,6 +19,18 @@ var app = express();
 /-----------------------------------------*/
 app.use(bodyParser());
 
+//--- Connect MongoDB ---//
+mongoose.connect("mongodb://localhost/Project");
+
+//--- MongoDB Schema ---//
+var TaskSchema = new mongoose.Schema({
+		  id: Number,	
+	   title: String,
+	priority: Number
+});
+
+//--- Create Model ---//
+var Tasks = mongoose.model('Tasks', TaskSchema);
 
 /*-------------------------------------------------------------/
 | API Version 1.0
@@ -25,40 +39,23 @@ app.use(bodyParser());
 | This is good for basic app.
 */
 
+
 	//--- GET HOME PAGE ---//
 	app.get('/',function(req,res){
-		res.send('Task Home Page');
+		Tasks.find({}, function (err,docs){
+			res.json(docs);
+		});
 	});
 
-	//--- GET : Read Single task with id ---//
-	app.get('/v1/task/:taskId', function(req,res){
-		res.send('Reading task with id : ' + req.params.taskId); // get from query string
-	});
-
-	//--- POST : Add new task ---//
-	app.post('/v1/task',function(req,res,next){
-		res.json(req.body); // get from form post
-	});
-
-	//--- PUT : Edit task ---//
-	app.put('/v1/task/:taskId', function(req, res){
-		// fetching taskId and appending in req.body
-		req.body.taskId = req.params.taskId;
-		res.json(req.body);
-	});
-
-	//--- DELETE : Delete single task ---//
-	app.delete('/v1/task/:taskId', function(req,res){
-		res.send('Deleting Task with id : ' + req.params.taskId);
-	});
 
 	/*----------------------------------------/
 		Read and Delete All Task
 	/-----------------------------------------*/
 
 	app.get('/v1/tasks', function(req,res){
-		// Read all task from DB
-		res.send('Read all tasks');
+		Tasks.find({}, function(err, docs) {
+			res.json(docs);
+		});
 	});
 
 	app.delete('/v1/tasks', function(req,res){
@@ -67,7 +64,85 @@ app.use(bodyParser());
 
 
 
+	//--- GET : Read Single task with id ---//
+	app.get('/v1/task/:taskId',function(req,res){
+		/*----------------------------------------/
+			Create a JSON - taskId {id:1}
+			to find from database 
+		/-----------------------------------------*/
+		var taskId = {id:req.params.taskId};
+
+		Tasks.find(taskId, function(err, docs){
+			res.json(docs);
+		});
+	});
+
+	//--- POST : Add new task ---//
+	app.post('/v1/task',function(req,res,next){
+
+		/*----------------------------------------/
+			Create a new Tasks Model and asign
+			values from FORM POST and chain to
+			mongoose save() method.
+			'save()' accept 1 callback with error
+			and docs (resent documents) as params
+		/-----------------------------------------*/
+		
+		new Tasks({
+			id: req.body.id,
+			title: req.body.title,
+			priority: req.body.priority
+		}).save( function (err, docs) {
+			if(err) {
+				res.json(err);
+			}
+			else{
+				/*----------------------------------------/
+					On save successful retun the current
+					document 'docs'
+				/-----------------------------------------*/
+				res.json(docs);
+			}
+		});
+	});
+
+	//--- PUT : Edit task ---//
+	app.put('/v1/task/:taskId', function(req, res){
+		//--- Get Task ID from URL ---//
+		var taskId = {id:req.params.taskId};
+
+		//--- Get New Task Value from FORM ---//
+		var newTaskValue = {
+			id: req.body.id,
+			title: req.body.title,
+			priority: req.body.priority
+		};
+
+		/*----------------------------------------/
+			Update Tasks Model and if success
+			'docs' return 1 
+		/-----------------------------------------*/
+		Tasks.update(taskId, newTaskValue, function(err,docs){
+			if(err) {
+				res.json(err);
+			} else {
+				if(docs===1){
+					res.json({status:'OK'});
+				}
+			}
+		});
+	});
+
+	//--- DELETE : Delete single task ---//
+	app.delete('/v1/task/:taskId', function(req,res){
+		res.send('Deleting Task with id : ' + req.params.taskId);
+	});
+
+
+
+
+
 //--- Star Server Listening on PORT pre-specified ---//
 app.listen(port, function(){
-	console.log('Node Server Listening on port : ' + port);
+	console.log('NodeJS server started on port : ' + port);
 });
