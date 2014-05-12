@@ -8,6 +8,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var http = require('http');
 var port = 1337;
+
 //--- Require Mongoose ---//
 var mongoose = require('mongoose');
 
@@ -18,6 +19,7 @@ var app = express();
 	from POST Forms	
 /-----------------------------------------*/
 app.use(bodyParser());
+app.use(express.static(__dirname + '/public'));
 
 //--- Connect MongoDB ---//
 mongoose.connect("mongodb://localhost/Project");
@@ -40,26 +42,26 @@ var Tasks = mongoose.model('Tasks', TaskSchema);
 */
 
 
-	//--- GET HOME PAGE ---//
-	app.get('/',function(req,res){
-		Tasks.find({}, function (err,docs){
-			res.json(docs);
-		});
-	});
-
-
 	/*----------------------------------------/
-		Read and Delete All Task
+		Read All Tasks
 	/-----------------------------------------*/
-
 	app.get('/v1/tasks', function(req,res){
 		Tasks.find({}, function(err, docs) {
 			res.json(docs);
 		});
 	});
 
+	/*----------------------------------------/
+		Delete All Tasks
+	/-----------------------------------------*/
 	app.delete('/v1/tasks', function(req,res){
-		res.send('Delete all tasks');
+		Tasks.remove({}, function(err){
+			if(err){
+				res.json(err);
+			} else{
+				res.json({status: 'OK'});
+			}
+		});
 	});
 
 
@@ -72,7 +74,7 @@ var Tasks = mongoose.model('Tasks', TaskSchema);
 		/-----------------------------------------*/
 		var taskId = {id:req.params.taskId};
 
-		Tasks.find(taskId, function(err, docs){
+		Tasks.findOne(taskId, function(err, docs){
 			res.json(docs);
 		});
 	});
@@ -135,7 +137,13 @@ var Tasks = mongoose.model('Tasks', TaskSchema);
 
 	//--- DELETE : Delete single task ---//
 	app.delete('/v1/task/:taskId', function(req,res){
-		res.send('Deleting Task with id : ' + req.params.taskId);
+		Tasks.remove({id:req.params.taskId}, function(err){
+			if(err){
+				res.json(err);
+			} else{
+				res.json({status:'OK'});
+			}
+		});
 	});
 
 

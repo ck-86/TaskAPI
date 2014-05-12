@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>API Page</title>
+	<!-- Loading JS files for Backbone -->
+	<script src="js/underscore.js"></script>
+	<script src="js/jquery-2.1.1.js"></script>
+	<script src="js/backbone.js"></script>
+</head>
+<body>
+Hello World, from Backbone :)
+<script type="text/javascript">
+	(function(){
+		
+		window.App = {
+			Models: {},
+			Views: {},
+			Collections: {}
+		};
+
+		App.Models.Task = Backbone.Model.extend({
+			defaults: {
+				title:'',
+				priority: 0
+			},
+			urlRoot: 'v1/task'
+		});
+
+	}) ();
+</script>
+
+</body>
+</html>

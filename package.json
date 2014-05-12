@@ -5,7 +5,8 @@
   "main": "server.js",
   "dependencies": {
     "express": "^4.1.1",
-    "mongoose" : "*"
+    "mongoose": "*",
+    "mongoose-auto-increment": "^3.0.2"
   },
   "devDependencies": {},
   "scripts": {
